@@ -1,9 +1,13 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1.0" />
   <meta name="theme-color" content="#2D7A3E" />
+
+  <!-- Manifest -->
+  <link rel="manifest" href="manifest.json">
+
   <title>EcoTips — Consejos ecológicos</title>
 
   <style>
@@ -25,230 +29,83 @@
       display:flex;
       align-items:center;
       justify-content:center;
+      padding:20px;
     }
 
-    .splash {
-      position:fixed; inset:0;
-      display:flex; align-items:center; justify-content:center;
-      background:linear-gradient(180deg,#fff 0%, #e9f6ea 80%);
-      z-index:40;
-    }
-    .splash-inner { text-align:center; }
-    .logo-circle {
-      width:72px; height:72px; border-radius:18px;
-      background:var(--accent); display:inline-flex;
-      align-items:center; justify-content:center;
-      color:#fff; font-size:36px;
-      box-shadow:0 8px 20px rgba(45,122,62,0.18);
-    }
-    .splash h1 { margin:.6rem 0 0; font-size:24px; color:var(--accent); }
-    .splash p { margin:6px 0 0; color:var(--muted); }
-
-    .hidden { display:none; }
-
-    .app { width:min(720px,96%); margin:2rem auto; }
-    .header {
-      display:flex; justify-content:space-between;
-      align-items:center; margin-bottom:1rem;
-    }
-    .brand { display:flex; gap:.8rem; align-items:center; }
-    .brand h1 { font-size:20px; margin:0; color:var(--accent); }
-    .streak { color:var(--muted); }
-
-    .tip-card {
-      background:var(--card);
-      padding:1.3rem;
-      border-radius:14px;
-      box-shadow:0 10px 30px rgba(16,40,12,0.06);
-    }
-    .tip-card h2 { margin:0 0 .3rem; font-size:18px; }
-    .tip-card p { margin:0 0 1rem; line-height:1.5; }
-    .meta { color:var(--muted); margin-bottom:1rem; }
-
-    .actions { display:flex; gap:.6rem; }
-    .btn {
-      background:var(--accent); border:0; color:white;
-      padding:.6rem .9rem; border-radius:10px;
-      font-weight:600; cursor:pointer;
-    }
-    .btn.outline {
-      background:transparent;
-      color:var(--accent);
-      border:1px solid rgba(45,122,62,0.14);
+    .card {
+      background: var(--card);
+      width: 100%;
+      max-width: 380px;
+      padding: 28px;
+      border-radius: 20px;
+      text-align: center;
+      box-shadow:
+        0 8px 20px rgba(0,0,0,0.07),
+        0 0 0 1px rgba(0,0,0,0.04);
     }
 
-    .footer { text-align:center; margin-top:1rem; color:var(--muted); }
+    h1 {
+      font-size: 1.7rem;
+      margin: 0 0 12px 0;
+      color: var(--accent);
+      font-weight: 700;
+    }
 
-    @media (max-width:480px) {
-      .logo-circle { width:56px; height:56px; font-size:28px; }
-      .tip-card { padding:1rem; }
+    p {
+      color: var(--muted);
+      font-size: 1rem;
+      margin: 0 0 22px;
+    }
+
+    button {
+      padding: 12px 20px;
+      width: 100%;
+      background: var(--accent);
+      color: white;
+      border: none;
+      border-radius: 14px;
+      cursor: pointer;
+      font-size: 1rem;
+      font-weight: 600;
+      transition: 0.2s;
+    }
+    button:hover {
+      opacity: 0.9;
     }
   </style>
 </head>
 
 <body>
-  <div id="splash" class="splash">
-    <div class="splash-inner">
-      <div class="logo-circle">🌿</div>
-      <h1>EcoTips</h1>
-      <p>Pequeños gestos, gran impacto</p>
-    </div>
+
+  <div class="card">
+    <h1>EcoTips</h1>
+    <p id="tip">
+      Presiona el botón para recibir un consejo ecológico.
+    </p>
+    <button onclick="nuevoTip()">Nuevo consejo</button>
   </div>
 
-  <main id="app" class="app hidden">
-    <header class="header">
-      <div class="brand">
-        <div class="logo-circle">🌿</div>
-        <h1>EcoTips</h1>
-      </div>
-      <div class="streak">Racha: <span id="streak">0</span></div>
-    </header>
-
-    <section class="tip-card" id="tipCard" aria-live="polite">
-      <h2 id="tipTitle">Consejo del día</h2>
-      <p id="tipText">Cargando...</p>
-      <div class="meta">
-        <small id="tipSource"></small>
-      </div>
-      <div class="actions">
-        <button id="doneBtn" class="btn">Lo hice ✅</button>
-        <button id="nextBtn" class="btn outline">Siguiente</button>
-        <button id="shareBtn" class="btn outline">Copiar</button>
-      </div>
-    </section>
-
-    <footer class="footer">
-      <small>Consejos generados localmente · Sin datos personales</small>
-    </footer>
-  </main>
-
   <script>
-    document.addEventListener("DOMContentLoaded", () => {
-      const tips = [
-        {text: 'Cierra el grifo mientras te cepillas los dientes: puedes ahorrar hasta 8 litros por minuto.', source: 'Agua'},
-        {text: 'Usa bolsas reutilizables para tus compras y evita las bolsas plásticas de un solo uso.', source: 'Plástico'},
-        {text: 'Si puedes, recicla los residuos orgánicos: compónalos en un pequeño contenedor.', source: 'Compost'},
-        {text: 'Apaga las luces en habitaciones vacías y cambia a bombillas LED.', source: 'Energía'},
-        {text: 'Dale una segunda vida a objetos: repara antes de reemplazar.', source: 'Reparar'},
-        {text: 'Consume menos carne una vez por semana: prueba un "lunes sin carne".', source: 'Alimentación'},
-        {text: 'Compra productos locales y de temporada para reducir la huella de transporte.', source: 'Compras'},
-        {text: 'Lava la ropa con agua fría para reducir el consumo energético.', source: 'Lavado'},
-        {text: 'Utiliza el transporte público, bicicleta o camina para trayectos cortos.', source: 'Movilidad'},
-        {text: 'Evita productos con exceso de embalaje: elige envases reutilizables.', source: 'Embalaje'}
-      ];
+    const tips = [
+      "Apaga las luces cuando no las uses.",
+      "Reduce el consumo de agua al ducharte.",
+      "Reutiliza envases y bolsas siempre que sea posible.",
+      "Separa los residuos para reciclar correctamente.",
+      "Desconecta cargadores cuando no los utilices.",
+      "Usa bicicleta o camina para distancias cortas.",
+      "Reduce el uso de plásticos de un solo uso."
+    ];
 
-      const splash = document.getElementById('splash');
-      const app = document.getElementById('app');
-      const tipText = document.getElementById('tipText');
-      const tipTitle = document.getElementById('tipTitle');
-      const tipSource = document.getElementById('tipSource');
-      const streakEl = document.getElementById('streak');
-      const nextBtn = document.getElementById('nextBtn');
-      const doneBtn = document.getElementById('doneBtn');
-      const shareBtn = document.getElementById('shareBtn');
+    function nuevoTip() {
+      const idx = Math.floor(Math.random() * tips.length);
+      document.getElementById("tip").textContent = tips[idx];
+    }
 
-      const KEY_STREAK = 'ecotips_streak';
-      const KEY_LAST_DONE = 'ecotips_last_done';
-      const KEY_LAST_INDEX = 'ecotips_last_index';
-
-      function showSplashThenApp(){
-        setTimeout(()=>{
-          splash.classList.add('hidden');
-          app.classList.remove('hidden');
-        }, 900);
-      }
-
-      function pickTipByDay(){
-        const today = new Date();
-        const dayNumber = Math.floor(today.getTime() / (1000*60*60*24));
-        return dayNumber % tips.length;
-      }
-
-      function renderTip(index){
-        const tip = tips[index];
-        tipText.textContent = tip.text;
-        tipTitle.textContent = 'Consejo #' + (index+1);
-        tipSource.textContent = tip.source ? 'Categoría: '+tip.source : '';
-        localStorage.setItem(KEY_LAST_INDEX, index);
-      }
-
-      function updateStreakDisplay(){
-        const s = parseInt(localStorage.getItem(KEY_STREAK) || '0', 10);
-        streakEl.textContent = s;
-      }
-
-      function markDone(){
-        const lastDone = localStorage.getItem(KEY_LAST_DONE);
-        const todayKey = new Date().toDateString();
-        if(lastDone === todayKey){
-          alert('¡Ya marcaste el consejo de hoy como hecho!');
-          return;
-        }
-        const prevDate = lastDone ? new Date(lastDone) : null;
-        const today = new Date();
-
-        let streak = parseInt(localStorage.getItem(KEY_STREAK) || '0', 10);
-        if(prevDate){
-          const diffDays = Math.floor((today - prevDate)/(1000*60*60*24));
-          if(diffDays === 1){
-            streak += 1;
-          } else if(diffDays > 1){
-            streak = 1;
-          }
-        } else {
-          streak = 1;
-        }
-
-        localStorage.setItem(KEY_STREAK, String(streak));
-        localStorage.setItem(KEY_LAST_DONE, todayKey);
-        updateStreakDisplay();
-        alert('¡Bien hecho! Se actualizó tu racha. 🌿');
-      }
-
-      function nextRandom(){
-        const lastIndex = parseInt(localStorage.getItem(KEY_LAST_INDEX) || '-1', 10);
-        let idx = Math.floor(Math.random()*tips.length);
-        if(tips.length>1 && idx === lastIndex){
-          idx = (idx+1) % tips.length;
-        }
-        renderTip(idx);
-      }
-
-      function copyTip(){
-        const txt = tipText.textContent + ' — Consejos EcoTips';
-        if(navigator.clipboard && navigator.clipboard.writeText){
-          navigator.clipboard.writeText(txt).then(()=>{
-            alert('Consejo copiado al portapapeles');
-          }).catch(()=>{
-            fallbackCopy(txt);
-          });
-        } else {
-          fallbackCopy(txt);
-        }
-      }
-
-      function fallbackCopy(text){
-        const ta = document.createElement('textarea');
-        ta.value = text;
-        document.body.appendChild(ta);
-        ta.select();
-        try{
-          document.execCommand('copy');
-          alert('Consejo copiado');
-        }catch(e){
-          alert('No fue posible copiar');
-        }
-        ta.remove();
-      }
-
-      nextBtn.addEventListener('click', nextRandom);
-      doneBtn.addEventListener('click', markDone);
-      shareBtn.addEventListener('click', copyTip);
-
-      showSplashThenApp();
-      renderTip(pickTipByDay());
-      updateStreakDisplay();
-    });
+    // Registrar Service Worker
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.register("sw.js")
+        .catch(err => console.log("SW error:", err));
+    }
   </script>
 
 </body>
