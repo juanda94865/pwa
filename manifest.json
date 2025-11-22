@@ -1,9 +1,8 @@
 {
-  "name": "EcoTips — Consejos ecológicos",
+  "name": "EcoTips",
   "short_name": "EcoTips",
-  "description": "Consejos ecológicos diarios generados localmente.",
+  "description": "Consejos ecológicos diarios",
   "start_url": "./index.html",
-  "scope": "./",
   "display": "standalone",
   "background_color": "#f6fbf6",
   "theme_color": "#2D7A3E",
