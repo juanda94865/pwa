@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1.0" />
   <meta name="theme-color" content="#2D7A3E" />
   <title>EcoTips — Consejos ecológicos</title>
+
   <style>
     :root {
       --bg:#f6fbf6;
@@ -15,14 +16,6 @@
 
     * { box-sizing: border-box; }
     html, body { height:100%; }
-    
-    <script>
-  if ("serviceWorker" in navigator) {
-    navigator.serviceWorker.register("./sw.js")
-      .catch(err => console.log("SW error:", err));
-  }
-</script>
-
 
     body {
       margin:0;
@@ -92,6 +85,7 @@
     }
   </style>
 </head>
+
 <body>
   <div id="splash" class="splash">
     <div class="splash-inner">
@@ -256,5 +250,6 @@
       updateStreakDisplay();
     });
   </script>
+
 </body>
 </html>
